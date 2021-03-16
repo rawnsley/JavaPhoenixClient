@@ -196,8 +196,9 @@ class PresenceTest {
     @Test
     internal fun `onJoins new presences and onLeaves left presences`() {
       val newState = fixState
+      val presenceMeta : PresenceMeta = mapOf("id" to 4, "phx_ref" to "4")
       var state = mutableMapOf(
-          "u4" to mutableMapOf("metas" to listOf(mapOf("id" to 4, "phx_ref" to "4"))))
+          "u4" to mutableMapOf("metas" to listOf(presenceMeta)))
 
       val joined: PresenceDiff = mutableMapOf()
       val left: PresenceDiff = mutableMapOf()
@@ -245,13 +246,13 @@ class PresenceTest {
 
     @Test
     internal fun `onJoins only newly added metas`() {
+      val presenceMeta : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3")
+      val presenceMetaNew : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3.new")
       var state = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(mapOf("id" to 3, "phx_ref" to "3"))))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta)))
       val newState = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 3, "phx_ref" to "3"),
-              mapOf("id" to 3, "phx_ref" to "3.new")
-          )))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta, presenceMetaNew))
+      )
 
       val joined: PresenceDiff = mutableMapOf()
       val left: PresenceDiff = mutableMapOf()
@@ -285,13 +286,13 @@ class PresenceTest {
 
     @Test
     internal fun `onLeaves only newly removed metas`() {
+      val presenceMeta : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3")
+      val presenceMetaLeft : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3.left")
       val newState = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(mapOf("id" to 3, "phx_ref" to "3"))))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta)))
       var state = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 3, "phx_ref" to "3"),
-              mapOf("id" to 3, "phx_ref" to "3.left")
-          )))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta, presenceMetaLeft))
+      )
 
       val joined: PresenceDiff = mutableMapOf()
       val left: PresenceDiff = mutableMapOf()
@@ -326,17 +327,16 @@ class PresenceTest {
 
     @Test
     internal fun `syncs both joined and left metas`() {
+      val presenceMeta : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3")
+      val presenceMetaNew : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3.new")
+      val presenceMetaLeft : PresenceMeta = mapOf("id" to 3, "phx_ref" to "3.left")
       val newState = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 3, "phx_ref" to "3"),
-              mapOf("id" to 3, "phx_ref" to "3.new")
-          )))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta, presenceMetaNew)
+      ))
 
       var state = mutableMapOf(
-          "u3" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 3, "phx_ref" to "3"),
-              mapOf("id" to 3, "phx_ref" to "3.left")
-          )))
+          "u3" to mutableMapOf("metas" to listOf(presenceMeta, presenceMetaLeft)
+      ))
 
       val joined: PresenceDiff = mutableMapOf()
       val left: PresenceDiff = mutableMapOf()
@@ -421,16 +421,15 @@ class PresenceTest {
 
     @Test
     internal fun `removes meta while leaving key if other metas exist`() {
+      val presenceMeta1  : PresenceMeta = mapOf("id" to 1, "phx_ref" to "1")
+      val presenceMeta12 : PresenceMeta = mapOf("id" to 1, "phx_ref" to "1.2")
       var state = mutableMapOf(
-          "u1" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 1, "phx_ref" to "1"),
-              mapOf("id" to 1, "phx_ref" to "1.2")
-          )))
+          "u1" to mutableMapOf("metas" to listOf(presenceMeta1, presenceMeta12)
+      ))
 
       val leaves = mutableMapOf(
-          "u1" to mutableMapOf("metas" to listOf(
-              mapOf("id" to 1, "phx_ref" to "1")
-          )))
+          "u1" to mutableMapOf("metas" to listOf(presenceMeta1)
+      ))
       val diff: PresenceDiff = mutableMapOf("joins" to mutableMapOf(), "leaves" to leaves)
       state = Presence.syncDiff(state, diff)
 
